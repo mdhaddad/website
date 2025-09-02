@@ -85,7 +85,7 @@ a {
 }
 
 .logo {
-    background-image: url('logo.png');
+    background-image: url('../logo.png');
     background-size: cover;
     font-family: var(--font-heading);
     font-size: 1.8rem;
