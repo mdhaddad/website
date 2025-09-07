@@ -88,9 +88,19 @@ a {
     align-items: center;
     gap: var(--space-sm);
 }
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
 .footer-logo .logo {
     width: 35px;
     height: 35px;
+}
+.footer-logo .logo-text {
+    color: var(--white);
+    font-size: var(--font-size-lg);
 }
 /*.logo-text {
     font-family: var(--font-heading);
