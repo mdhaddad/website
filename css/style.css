@@ -83,7 +83,15 @@ a {
     align-items: center;
     height: 100%;
 }
-
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+.footer-logo .logo {
+    width: 35px;
+    height: 35px;
+}
 /*.logo-text {
     font-family: var(--font-heading);
     font-size: 1.8rem;
