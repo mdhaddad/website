@@ -84,11 +84,16 @@ a {
     height: 100%;
 }
 
-.logo-text {
+/*.logo-text {
     font-family: var(--font-heading);
     font-size: 1.8rem;
     color: var(--color-primary);
     font-weight: 700;
+}*/
+.logo-text {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-primary);
 }
 .nav-logo .logo, .footer-logo .logo {
     width: 40px;
