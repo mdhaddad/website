@@ -195,8 +195,6 @@ button, .btn {
     height: 40px;
     object-fit: contain;
     border-radius: 50%;
-    /* Fallback gradient for logo placeholder */
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-orange), var(--primary-blue));
 }
 
 .footer-logo .logo {
