@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Dynamic Logo Color Change on Scroll
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     const logos = document.querySelectorAll('.nav-logo .logo, .footer-logo .logo');
     
     window.addEventListener('scroll', function() {
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+});*/
 
 // Service Card Learn More Button Enhancement
 document.addEventListener('DOMContentLoaded', function() {
