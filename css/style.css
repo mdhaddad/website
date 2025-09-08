@@ -167,6 +167,13 @@ a {
     border-bottom-color: var(--color-secondary);
 }
 
+.about-text {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+}
+
 .mission-vision {
     display: grid;
     grid-template-columns: 1fr 1fr;
