@@ -82,6 +82,14 @@ a {
     color: #555;
 }
 
+.section-body {
+    text-align: left;
+    max-width: 700px;
+    margin: 0 auto 3rem auto;
+    font-size: 1.1rem;
+    color: #555;
+}
+
 /* --- HEADER & NAVIGATION --- */
 .main-header {
     background: var(--color-background);
