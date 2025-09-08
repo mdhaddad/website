@@ -134,7 +134,7 @@ a {
 .logo-text {
     /*font-size: var(--font-size-lg);*/
     font-family: var(--font-heading);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-primary);
 }
