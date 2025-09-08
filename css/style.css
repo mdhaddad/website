@@ -172,6 +172,7 @@ a {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-3xl);
     margin-top: var(--space-xl);
+    max-width: 700px;
     align-items: center;
 }
 
