@@ -434,6 +434,11 @@ a {
     margin: 1rem 0;
 }
 
+.service-description ol {
+    list-style-position: inside;
+    margin: 1rem 0;
+}
+
 .service-description li {
     margin-bottom: 0.5rem;
 }
