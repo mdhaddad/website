@@ -169,8 +169,10 @@ a {
 
 .cards {
     display: grid;
-    grid-template-columns: none;
-    grid-auto-columns: auto;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-items: center;
+    /*grid-template-columns: repeat(auto-fill, 200px);
+    justify-content: center;*/
     gap: var(--space-3xl);
     margin-top: var(--space-xl);
     max-width: 700px;
