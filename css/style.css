@@ -169,9 +169,9 @@ a {
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, auto));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     justify-items: center;
-    /*grid-template-columns: repeat(auto-fill, 200px);
+    /*grid-template-columns: repeat(auto-fill, 140px);
     justify-content: center;*/
     gap: var(--space-3xl);
     margin-top: var(--space-xl);
