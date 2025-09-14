@@ -167,9 +167,10 @@ a {
     border-bottom-color: var(--color-secondary);
 }
 
-.mission-vision {
+.cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: none;
+    grid-auto-columns: 1fr;
     gap: var(--space-3xl);
     margin-top: var(--space-xl);
     max-width: 700px;
@@ -177,14 +178,21 @@ a {
     margin-right: auto;
 }
 
-.mission, .vision {
+.card {
     padding: var(--space-lg);
     background: var(--light-gray);
     border-radius: var(--border-radius-lg);
+}
+
+.card-left {
     border-left: 4px solid var(--color-secondary);
 }
 
-.mission h3, .vision h3 {
+.card-top {
+    border-top: 4px solid var(--color-secondary);
+}
+
+.card h3 {
     color: var(--color-primary);
     margin-bottom: var(--space-sm);
 }
