@@ -378,13 +378,13 @@ a {
     color: var(--color-background);
 }
 
-.cta-section container h2 {
+.cta-section h2 {
     font-size: 4rem;
     color: var(--color-background);
     margin-bottom: 1rem;
 }
 
-.cta-section container p {
+.cta-section p {
     font-size: 1.4rem;
     margin-bottom: 2rem;
 }
