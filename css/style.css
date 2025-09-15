@@ -244,7 +244,7 @@ a {
 /* --- HERO SECTION --- */
 .hero {
     height: calc(100vh - var(--header-height));
-    background-image: /*linear-gradient(rgba(0, 30, 29, 0.7), rgba(0, 30, 29, 0.7))*/linear-gradient(90deg, #00529BF5 59%, #00000078 100%), url('../background.webp');
+    background-image: linear-gradient(rgba(0, 30, 29, 0.7), rgba(0, 30, 29, 0.7)), url('../background.webp');
     background-size: cover;
     background-position: center;
     display: flex;
