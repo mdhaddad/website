@@ -386,6 +386,7 @@ a {
 
 .cta-section p {
     font-size: 1.4rem;
+    color: var(--color-background);
     margin-bottom: 2rem;
 }
 
