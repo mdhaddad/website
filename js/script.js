@@ -4,13 +4,13 @@
     //if (sessionStorage.getItem('logged_ip')) return;
 
     // 1) get public IP from ipify (or similar)
-    //const ipRes = await fetch('https://api.ipify.org?format=json');
-    //const ipJson = await ipRes.json();
-    //const ip = ipJson.ip || 'unknown';
+    const ipRes = await fetch('https://api.ipify.org?format=json');
+    const ipJson = await ipRes.json();
+    const ip = ipJson.ip || 'unknown';
 
     // 2) prepare form-encoded data to avoid preflight
     const params = new URLSearchParams();
-    params.append('ip', 'unknown'/*ip*/);
+    params.append('ip', ip);
     params.append('path', location.pathname + location.search);
     params.append('ua', navigator.userAgent);
     params.append('referer', document.referrer || '');
