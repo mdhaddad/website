@@ -118,75 +118,223 @@
                     <!--<cite>&ndash; A Program Participant</cite>-->
                 </blockquote>
             </div>
-<div id="my-calendar-widget" style="--widget-bg: #2c3e50; --text-color: #ecf0f1;">
-  <h3>Book a time with me</h3>
-  <div id="time-slots">
-    <button onclick="selectTime('2026-04-05T10:00:00-04:00')">Tomorrow at 10 AM</button>
-  </div>
+<div id="modern-goog-cal" style="--cal-bg: transparent; --cal-text: inherit; --cal-busy: rgba(255,255,255,0.1); --cal-hover: rgba(255,255,255,0.2); --cal-border: rgba(255,255,255,0.05);">
   
-  <form id="booking-form" style="display:none;">
-    <input type="text" id="agenda" placeholder="Meeting Agenda" required>
-    <input type="email" id="visitor-email" placeholder="Your Email" required>
-    <button type="submit">Confirm Booking</button>
-  </form>
+  <div class="cal-header">
+    <button onclick="changeWeek(-1)">&#8592;</button>
+    <h3 id="week-label">Loading Calendar...</h3>
+    <button onclick="changeWeek(1)">&#8594;</button>
+  </div>
+
+  <div class="cal-grid-container">
+    <div id="cal-time-labels"></div>
+    <div id="cal-grid"></div>
+  </div>
+
+  <div id="booking-modal" style="display:none;">
+    <h4>Book: <span id="selected-time-label"></span></h4>
+    <form id="booking-form">
+      <input type="text" id="agenda" placeholder="Meeting Agenda" required>
+      <input type="email" id="visitor-email" placeholder="Your Email" required>
+      <div class="modal-buttons">
+        <button type="submit" class="btn-confirm">Confirm</button>
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <style>
-  /* The Magic Themeability */
-  #my-calendar-widget {
-    background-color: var(--widget-bg);
-    color: var(--text-color);
-    padding: 20px;
+  #modern-goog-cal {
+    background-color: var(--cal-bg);
+    color: var(--cal-text);
+    font-family: system-ui, sans-serif;
     border-radius: 8px;
-    font-family: sans-serif;
-    max-width: 400px;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    position: relative;
   }
+
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .cal-header button { background: var(--cal-hover); border: none; color: var(--cal-text); padding: 8px 12px; border-radius: 4px; cursor: pointer; }
   
-  #my-calendar-widget input, 
-  #my-calendar-widget button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 4px;
-    border: none;
-  }
+  .cal-grid-container { display: flex; border-top: 1px solid var(--cal-border); border-left: 1px solid var(--cal-border); }
   
-  #my-calendar-widget button {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: var(--text-color);
-    cursor: pointer;
+  #cal-time-labels { width: 60px; display: flex; flex-direction: column; }
+  .time-label { height: 50px; font-size: 12px; text-align: right; padding-right: 10px; opacity: 0.7; border-right: 1px solid var(--cal-border); border-bottom: 1px solid var(--cal-border); display: flex; align-items: center; justify-content: flex-end; }
+  
+  #cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex-grow: 1; }
+  .cal-day-col { display: flex; flex-direction: column; border-right: 1px solid var(--cal-border); }
+  .cal-day-header { text-align: center; font-size: 14px; font-weight: bold; padding: 10px 0; border-bottom: 1px solid var(--cal-border); }
+  
+  .cal-slot { height: 50px; border-bottom: 1px solid var(--cal-border); cursor: pointer; transition: background 0.2s; box-sizing: border-box; }
+  .cal-slot:hover { background: var(--cal-hover); }
+
+  /* UPDATED BUSY STYLING FOR TEXT */
+  .cal-slot.busy {
+    background: var(--cal-busy);
+    cursor: not-allowed;
+    font-size: 11px;
+    padding: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--cal-text);
+    opacity: 0.85;
+    border-left: 2px solid #4CAF50; /* Add a nice accent line */
   }
+
+  #booking-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; width: 300px; }
+  #booking-modal input { width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; border-radius: 4px; border: none; }
+  .modal-buttons { display: flex; gap: 10px; }
+  .btn-confirm { flex: 1; background: #4CAF50; color: white; border: none; padding: 10px; cursor: pointer; }
+  .btn-cancel { flex: 1; background: #f44336; color: white; border: none; padding: 10px; cursor: pointer; }
 </style>
 
 <script>
-  let selectedTime = null;
+  const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-USERNAME.workers.dev';
+  const WORK_START_HOUR = 9; 
+  const WORK_END_HOUR = 17;  
+  
+  let currentWeekStart = new Date();
+  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+  currentWeekStart.setHours(0,0,0,0);
 
-  function selectTime(time) {
-    selectedTime = time;
-    document.getElementById('time-slots').style.display = 'none';
-    document.getElementById('booking-form').style.display = 'block';
+  let selectedSlot = null;
+  let existingEvents = [];
+
+  function initGrid() {
+    const timeLabels = document.getElementById('cal-time-labels');
+    timeLabels.innerHTML = '<div class="cal-day-header">Time</div>'; 
+    for(let i = WORK_START_HOUR; i < WORK_END_HOUR; i++) {
+      timeLabels.innerHTML += `<div class="time-label">${i > 12 ? i-12 : i} ${i >= 12 ? 'PM' : 'AM'}</div>`;
+    }
+    loadWeek();
+  }
+
+  async function loadWeek() {
+    const weekEnd = new Date(currentWeekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    document.getElementById('week-label').innerText = `Week of ${currentWeekStart.toLocaleDateString()}`;
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '<div style="padding:20px;">Fetching events...</div>';
+
+    try {
+      // UPDATED TO CALL /api/events
+      const response = await fetch(`${WORKER_URL}/api/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timeMin: currentWeekStart.toISOString(),
+          timeMax: weekEnd.toISOString()
+        })
+      });
+      existingEvents = await response.json();
+      renderGrid();
+    } catch (e) {
+      grid.innerHTML = '<div style="padding:20px;">Failed to load calendar data.</div>';
+    }
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      const col = document.createElement('div');
+      col.className = 'cal-day-col';
+      
+      const currentDay = new Date(currentWeekStart);
+      currentDay.setDate(currentDay.getDate() + dayIndex);
+      
+      col.innerHTML = `<div class="cal-day-header">${days[dayIndex]}<br>${currentDay.getDate()}</div>`;
+
+      for(let hour = WORK_START_HOUR; hour < WORK_END_HOUR; hour++) {
+        const slotStart = new Date(currentDay);
+        slotStart.setHours(hour, 0, 0, 0);
+        const slotEnd = new Date(currentDay);
+        slotEnd.setHours(hour + 1, 0, 0, 0);
+
+        // CHECK FOR EVENT OBJECT INSTEAD OF JUST BOOLEAN
+        const eventObj = getEventForSlot(slotStart, slotEnd);
+        
+        const slotDiv = document.createElement('div');
+        
+        if(eventObj) {
+          slotDiv.className = 'cal-slot busy';
+          slotDiv.innerText = eventObj.summary; // RENDER THE TITLE
+          slotDiv.title = `${eventObj.summary} (Busy)`; // Native hover tooltip
+        } else {
+          slotDiv.className = 'cal-slot free';
+          slotDiv.onclick = () => openBookingModal(slotStart);
+        }
+        
+        col.appendChild(slotDiv);
+      }
+      grid.appendChild(col);
+    }
+  }
+
+  // UPDATED HELPER TO RETURN THE ACTUAL EVENT
+  function getEventForSlot(slotStart, slotEnd) {
+    const startTime = slotStart.getTime();
+    const endTime = slotEnd.getTime();
+    return existingEvents.find(evt => {
+      // Ensure we have valid dates before parsing
+      if (!evt.start || !evt.end) return false;
+      const eStart = new Date(evt.start).getTime();
+      const eEnd = new Date(evt.end).getTime();
+      return (startTime < eEnd && endTime > eStart);
+    });
+  }
+
+  function changeWeek(offset) {
+    currentWeekStart.setDate(currentWeekStart.getDate() + (offset * 7));
+    loadWeek();
+  }
+
+  function openBookingModal(time) {
+    selectedSlot = time;
+    document.getElementById('selected-time-label').innerText = time.toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'});
+    document.getElementById('booking-modal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('booking-modal').style.display = 'none';
   }
 
   document.getElementById('booking-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const endTime = new Date(new Date(selectedTime).getTime() + 30*60000).toISOString(); // +30 mins
+    const endTime = new Date(selectedSlot);
+    endTime.setHours(endTime.getHours() + 1);
 
-    const response = await fetch('https://calendarbackend.watform.workers.dev/api/book', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        summary: document.getElementById('agenda').value,
-        description: 'Booked via homepage widget',
-        startTime: selectedTime,
-        endTime: endTime,
-        visitorEmail: document.getElementById('visitor-email').value
-      })
-    });
-    
-    if(response.ok) {
-      alert("Booked successfully!");
+    try {
+      const response = await fetch(`${WORKER_URL}/api/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summary: document.getElementById('agenda').value,
+          description: 'Booked via homepage widget',
+          startTime: selectedSlot.toISOString(),
+          endTime: endTime.toISOString(),
+          visitorEmail: document.getElementById('visitor-email').value
+        })
+      });
+      
+      if(response.ok) {
+        alert("Meeting booked!");
+        closeModal();
+        loadWeek(); 
+      }
+    } catch(err) {
+      alert("Booking failed.");
     }
   });
+
+  initGrid();
 </script>
         </section>
         <!-- Get Involved CTA Section -->
