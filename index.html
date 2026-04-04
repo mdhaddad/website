@@ -118,7 +118,76 @@
                     <!--<cite>&ndash; A Program Participant</cite>-->
                 </blockquote>
             </div>
-        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=America%2FNew_York&mode=WEEK&showPrint=0&showCalendars=0&src=d2F0Zm9ybUBnbWFpbC5jb20&color=%234285f4" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+<div id="my-calendar-widget" style="--widget-bg: #2c3e50; --text-color: #ecf0f1;">
+  <h3>Book a time with me</h3>
+  <div id="time-slots">
+    <button onclick="selectTime('2026-04-05T10:00:00-04:00')">Tomorrow at 10 AM</button>
+  </div>
+  
+  <form id="booking-form" style="display:none;">
+    <input type="text" id="agenda" placeholder="Meeting Agenda" required>
+    <input type="email" id="visitor-email" placeholder="Your Email" required>
+    <button type="submit">Confirm Booking</button>
+  </form>
+</div>
+
+<style>
+  /* The Magic Themeability */
+  #my-calendar-widget {
+    background-color: var(--widget-bg);
+    color: var(--text-color);
+    padding: 20px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    max-width: 400px;
+  }
+  
+  #my-calendar-widget input, 
+  #my-calendar-widget button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  #my-calendar-widget button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  let selectedTime = null;
+
+  function selectTime(time) {
+    selectedTime = time;
+    document.getElementById('time-slots').style.display = 'none';
+    document.getElementById('booking-form').style.display = 'block';
+  }
+
+  document.getElementById('booking-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const endTime = new Date(new Date(selectedTime).getTime() + 30*60000).toISOString(); // +30 mins
+
+    const response = await fetch('https://calendarbackend.watform.workers.dev/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        summary: document.getElementById('agenda').value,
+        description: 'Booked via homepage widget',
+        startTime: selectedTime,
+        endTime: endTime,
+        visitorEmail: document.getElementById('visitor-email').value
+      })
+    });
+    
+    if(response.ok) {
+      alert("Booked successfully!");
+    }
+  });
+</script>
         </section>
         <!-- Get Involved CTA Section -->
         <section id="contact" class="cta-section">
